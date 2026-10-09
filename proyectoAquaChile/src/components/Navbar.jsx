@@ -1,12 +1,16 @@
 import { NavLink } from 'react-router-dom';
+import logoAC from '../assets/Logo_Aquachile.png';
 
 function Navbar() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav 
+    className="navbar navbar-expand-lg navbar-dark shadow-sm"
+    style={{ backgroundColor: '#001225' }}
+    >
       <div className="container">
         {/* Nombre de la aplicación */}
         <NavLink className="navbar-brand fw-bold text-info" to="/">
-          AquaChile
+          <img src={logoAC} alt="Logo AquaChile" style={{ height: '45px' }} />
         </NavLink>
 
         {/* Botón responsive para pantallas pequeñas */}
@@ -24,7 +28,7 @@ function Navbar() {
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <NavLink className="nav-link" to="/">
-                Fiumba
+                Inicio
               </NavLink>
             </li>
             <li className="nav-item">
