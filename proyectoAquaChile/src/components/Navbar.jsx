@@ -1,51 +1,42 @@
 import { NavLink } from 'react-router-dom';
-import logoAC from '../assets/Logo_Aquachile.png';
+import { Navbar, Nav, Container } from 'react-bootstrap';
+import logoAC from '../assets/Logo_AquaChile.png';
 
-function Navbar() {
+const Navigation = () => {
   return (
-    <nav 
-    className="navbar navbar-expand-lg navbar-dark shadow-sm"
-    style={{ backgroundColor: '#001225' }}
+    <Navbar
+      expand="lg"
+      variant="dark"
+      collapseOnSelect
+      className="shadow-sm"
+      style={{ backgroundColor: '#001225' }}
     >
-      <div className="container">
-        {/* Nombre de la aplicación */}
-        <NavLink className="navbar-brand fw-bold text-info" to="/">
+      <Container>
+        {/* Logo de la aplicación */}
+        <Navbar.Brand as={NavLink} to="/">
           <img src={logoAC} alt="Logo AquaChile" style={{ height: '45px' }} />
-        </NavLink>
+        </Navbar.Brand>
 
         {/* Botón responsive para pantallas pequeñas */}
-        <button 
-          className="navbar-toggler" 
-          type="button" 
-          data-bs-toggle="collapse" 
-          data-bs-target="#navbarNav"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+        <Navbar.Toggle aria-controls="navbar-principal" />
 
         {/* Enlaces de navegación */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/">
-                Inicio
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/candidatos">
-                Candidatos
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/solicitudes">
-                Solicitudes
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+        <Navbar.Collapse id="navbar-principal">
+          <Nav className="ms-auto">
+            <Nav.Link as={NavLink} to="/" end eventKey="inicio">
+              Inicio
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/candidatos" eventKey="candidatos">
+              Candidatos
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/solicitudes" eventKey="solicitudes">
+              Solicitudes
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
-}
+};
 
-export default Navbar;
+export default Navigation;

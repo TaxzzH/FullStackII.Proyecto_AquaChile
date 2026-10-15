@@ -1,9 +1,11 @@
+import { Container } from 'react-bootstrap';
+
 function Dashboard() {
   return (
-    <div className="container mt-4">
+    <Container className="mt-4">
       <h2>Inicio / Dashboard</h2>
       <p>Bienvenido al sistema de evaluaciones psicolaborales.</p>
-    </div>
+    </Container>
   );
 }
 

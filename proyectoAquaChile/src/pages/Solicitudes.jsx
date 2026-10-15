@@ -1,9 +1,11 @@
+import { Container } from 'react-bootstrap';
+
 function Solicitudes() {
   return (
-    <div className="container mt-4">
+    <Container className="mt-4">
       <h2>Solicitudes de Evaluación</h2>
       <p>Aquí se desplegarán las solicitudes registradas.</p>
-    </div>
+    </Container>
   );
 }
 
