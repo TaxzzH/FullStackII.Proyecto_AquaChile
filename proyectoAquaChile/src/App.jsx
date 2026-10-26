@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Candidatos from "./pages/Candidatos";
-import Solicitudes from "./pages/Solicitudes";
+import Resumen from "./pages/Resumen";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/candidatos" element={<Candidatos />} />
-          <Route path="/solicitudes" element={<Solicitudes />} />
+          <Route path="/resumen" element={<Resumen />} />
         </Routes>
       </main>
     </BrowserRouter>

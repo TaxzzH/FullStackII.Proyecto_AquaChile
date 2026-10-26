@@ -38,3 +38,53 @@ body {
   color: inherit;
   cursor: pointer;
 }
+
+/* Tarjeta de bienvenida compatible con el tema */
+.welcome-card {
+  background-color: var(--navbar-bg);
+  color: var(--text-color);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.text-subtle {
+  color: var(--text-color);
+  opacity: 0.75;
+}
+
+/* Adaptación de tablas de Bootstrap al modo oscuro */
+html.dark .table {
+  color: var(--text-color);
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-color);
+  --bs-table-hover-color: var(--text-color);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+}
+
+html.dark .table-light {
+  background-color: var(--navbar-bg) !important;
+  color: var(--text-color) !important;
+}
+
+/* Adaptación de modales y controles de formulario */
+html.dark .modal-content {
+  background-color: var(--navbar-bg);
+  color: var(--text-color);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+html.dark .modal-header,
+html.dark .modal-footer {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+html.dark .form-control {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+html.dark .form-control:focus {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}

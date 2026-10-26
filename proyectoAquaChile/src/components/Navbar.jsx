@@ -76,8 +76,8 @@ function Navbar() {
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/solicitudes">
-                Solicitudes
+              <NavLink className="nav-link" to="/resumen">
+                Resumen
               </NavLink>
             </li>
 
