@@ -65,3 +65,8 @@ export const getSolicitudes = () => {
 export const saveSolicitudes = (solicitudes) => {
   localStorage.setItem("solicitudes_aqua", JSON.stringify(solicitudes));
 };
+
+export const resetSolicitudes = () => {
+  localStorage.setItem("solicitudes_aqua", JSON.stringify(initialSolicitudes));
+  return initialSolicitudes;
+};

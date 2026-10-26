@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getSolicitudes } from "../data/mockData";
+import { getSolicitudes, resetSolicitudes } from "../data/mockData";
 
 function Dashboard() {
   const [stats, setStats] = useState({ pendientes: 0, enProceso: 0, finalizadas: 0 });
   const evaluadorNombre = "Juan Pérez";
+
+  const handleReset = () => {
+  resetSolicitudes();
+  window.location.reload(); // Recarga para refrescar los contadores
+};
 
   useEffect(() => {
     const data = getSolicitudes();
@@ -45,7 +50,7 @@ function Dashboard() {
               <h5 className="card-title">En Proceso</h5>
               <p className="card-text display-4 fw-bold">{stats.enProceso}</p>
               <p className="card-text"><small>Evaluaciones en curso</small></p>
-              <Link to="/solicitudes" className="btn btn-light text-dark btn-sm">
+              <Link to="/resumen" className="btn btn-light text-dark btn-sm">
                 Ir a Resumen
               </Link>
             </div>
@@ -58,14 +63,21 @@ function Dashboard() {
               <h5 className="card-title">Aprobadas / Finalizadas</h5>
               <p className="card-text display-4 fw-bold">{stats.finalizadas}</p>
               <p className="card-text"><small>Evaluaciones completadas</small></p>
-              <Link to="/solicitudes" className="btn btn-light text-dark btn-sm">
+              <Link to="/resumen" className="btn btn-light text-dark btn-sm">
                 Ver Historial
               </Link>
             </div>
           </div>
         </div>
+        
+        <div> 
+          <button className="btn btn-outline-danger btn-sm mt-3" onClick={handleReset}>
+            🔄 Resetear datos de prueba
+          </button>
+        </div>     
       </div>
     </div>
+
   );
 }
 
