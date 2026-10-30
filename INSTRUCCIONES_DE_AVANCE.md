@@ -4,7 +4,7 @@ Documento de coordinación del equipo para el proyecto VcM de **DSY1104 Full Sta
 Resume el estado actual del proyecto, lo que falta y cómo se divide el trabajo.
 Todo el desarrollo se basa en el material entregado por el profesor (carpeta `materia/`). Lo que se agregue fuera de ese material se indica en la sección 6.
 
-> Última revisión: 15/10/2026
+> Última revisión: 29/10/2026
 
 **Equipo**
 
@@ -17,25 +17,58 @@ Todo el desarrollo se basa en el material entregado por el profesor (carpeta `ma
 
 ## 1. Estado actual
 
-**Avance estimado:** ~10% del Hito 1 (Frontend) · ~5% del MVP completo.
+**Avance estimado:** ~40% del Hito 1 (Frontend) · ~15% del MVP completo.
+El estado se midió sobre la rama `feature/testing`, que es la más avanzada. **Ninguna rama se ha unido a `main` todavía.**
+
+### Estado de las ramas en GitHub
+
+| Rama | Autor | Contenido | ¿Unida a `main`? |
+|---|---|---|---|
+| `main` | — | Plantilla, Navbar básica y logo (08/10) | — |
+| `feature/switch-stylemode` | Tomás | Switch modo oscuro/claro y logo blanco (15/10) | ❌ |
+| `feature/testing` | Tomás | Todo lo de `switch-stylemode` + mockData, pantallas con datos, Vitest y botón para resetear datos (26/10) | ❌ |
+| `feature/react-bootstrap` | Vicente | react-bootstrap instalado y Navbar/páginas migradas (15/10) | ❌ — **quedó desactualizada**: parte de la Navbar antigua, no la de `feature/testing` |
+| `docs/instrucciones-de-avance` | Vicente | Este documento | ❌ |
+
+### Avance por elemento
 
 | Elemento | Estado |
 |---|---|
-| Proyecto Vite + React 19 | ✅ Listo |
-| Bootstrap 5 instalado e importado | ✅ Listo |
-| React Router con rutas `/`, `/candidatos`, `/solicitudes` | ✅ Listo |
-| Navbar responsive con logo de AquaChile | ✅ Listo (ver corrección del logo abajo) |
-| Páginas Dashboard, Candidatos y Solicitudes | ⚠️ Solo tienen título (placeholder) |
-| react-bootstrap | ❌ No instalado |
-| Datos simulados, props, `useState` y localStorage | ❌ Pendiente |
-| Formularios y validaciones | ❌ Pendiente |
-| Pruebas unitarias (Jasmine + Karma) | ❌ Pendiente |
+| Proyecto Vite + React 19 y Bootstrap 5 | ✅ Listo |
+| Navbar responsive con logo y **switch de modo oscuro/claro** (guardado en localStorage) | ✅ Listo (Tomás) |
+| CSS de la plantilla de Vite eliminado | ✅ Listo (Tomás) |
+| Datos simulados en `src/data/mockData.js` con localStorage (`getSolicitudes`, `saveSolicitudes`, `resetSolicitudes`) | ✅ Listo (Tomás) |
+| Dashboard con indicadores (pendientes, en proceso, finalizadas) y botón para resetear datos | ✅ Listo (Tomás) |
+| Candidatos: tabla de solicitudes pendientes con botón "Iniciar Evaluación" (cambia el estado a En proceso) | ✅ Listo (Tomás) |
+| Resumen: tablas En proceso / Finalizadas y modal para registrar fecha, observaciones y finalizar | ✅ Listo (Tomás) |
+| react-bootstrap | ⚠️ Instalado solo en `feature/react-bootstrap`; hay que rehacer la migración sobre la Navbar nueva |
+| Formulario de registro/edición de candidato | ❌ Pendiente |
+| Formulario de nueva solicitud | ❌ Pendiente |
+| Detalle de solicitud con `useParams` (`/solicitudes/:id`) | ❌ Pendiente |
+| Búsqueda y filtros (estado, cargo, candidato, fecha) | ❌ Pendiente |
+| Login con roles simulados y rutas protegidas | ❌ Pendiente |
+| Validaciones con mensaje de error | ⚠️ Solo `required` en el modal de evaluación |
+| Componentes reutilizables con props (Atomic Design) | ❌ Pendiente: las páginas tienen todo el código adentro |
+| Pruebas unitarias | ⚠️ 1 prueba con **Vitest** (`sumar.test.js`); la rúbrica pide 10 con **Jasmine + Karma** sobre componentes |
 | Documento ERS y documento de cobertura de testing | ❌ Pendiente |
 | Backend, base de datos y despliegue | ❌ Pendiente (Hitos 2 y 3) |
 
-### Correcciones rápidas
-- **Logo:** `Navbar.jsx` importa `../assets/Logo_Aquachile.png`, pero el archivo se llama `Logo_AquaChile.png`. En Windows funciona, pero en Linux (EC2, Vercel, etc.) el build falla porque distingue mayúsculas. Corregir el import.
-- **CSS de la plantilla:** `src/index.css` y `src/App.css` son estilos de la plantilla de Vite (`#root` con ancho fijo y texto centrado) y chocan con Bootstrap. Limpiar `index.css` y eliminar `App.css`.
+### Revisión técnica de `feature/testing` (29/10)
+- `npm run build` ✅ compila · `npx vitest run` ✅ 1 de 1 prueba pasa · `npm run lint` ⚠️ 5 advertencias, sin errores.
+- **`package-lock.json` desactualizado:** `npm ci` falla con "Missing: @popperjs/core". Ejecutar `npm install` y subir el `package-lock.json` actualizado; si no, el despliegue o un compañero que use `npm ci` no podrán instalar.
+- **Import sin usar:** `Navbar.jsx` importa `useTheme` pero no lo usa; la lógica del tema está repetida dentro de la Navbar. Usar el hook `useTheme` o eliminarlo.
+- **`setState` dentro de `useEffect`** en Dashboard, Candidatos y Resumen: el lint sugiere inicializar el estado directamente, por ejemplo `useState(() => getSolicitudes())`.
+- **Ruta `/solicitudes` eliminada:** ahora existen `/candidatos` y `/resumen`. Falta la vista de listado de solicitudes con filtros y la de detalle que pide el anexo (sección 8).
+- **Modelo de datos:** candidato y solicitud están en un mismo objeto. Para el backend (Hito 2) conviene separarlos en `candidatos` y `solicitudes`, como pide el anexo (sección 10).
+- **Pruebas:** la rúbrica de la Evaluación Parcial 2 nombra Jasmine y Karma. Si se va a usar Vitest, conviene confirmarlo con el profesor.
+- **Datos ficticios:** los correos de prueba usan dominios reales (`gmail.com`, `outlook.com`). Para cumplir la regla de privacidad del caso, es más seguro usar `@ejemplo.cl`.
+
+### Próximos pasos sugeridos para ordenar el repositorio
+1. Corregir el `package-lock.json` en `feature/testing` (`npm install` y commit).
+2. Abrir un Pull Request de `feature/testing` hacia `main` y hacer merge. Como incluye `feature/switch-stylemode`, esa rama queda integrada también.
+3. Hacer merge de `docs/instrucciones-de-avance` a `main`.
+4. Rehacer la migración a react-bootstrap sobre el `main` actualizado, manteniendo el switch de tema. Después cerrar la rama vieja `feature/react-bootstrap`.
+5. Desde ese `main`, cada uno crea su rama para lo que falta (sección 4).
 
 ---
 
@@ -80,21 +113,21 @@ Estados de una solicitud: **Pendiente → En proceso → Finalizada**.
 ## 4. División de tareas
 
 ### Primer día – Trabajo conjunto
-- [ ] Corregir el import del logo y limpiar el CSS de la plantilla
-- [ ] Instalar react-bootstrap y migrar la Navbar a sus componentes
-- [ ] Definir el modelo de datos y crear `src/data/mockData.js`
-- [ ] Dejar en `App.jsx` el estado con `useState` + localStorage y pasarlo por props
+- [x] Corregir el import del logo y limpiar el CSS de la plantilla *(Tomás, `feature/testing`)*
+- [ ] Instalar react-bootstrap y migrar la Navbar a sus componentes *(hecho en `feature/react-bootstrap`, pero hay que rehacerlo sobre la Navbar nueva de `feature/testing`)*
+- [x] Definir el modelo de datos y crear `src/data/mockData.js` *(Tomás; falta separar candidatos y solicitudes)*
+- [ ] Dejar en `App.jsx` el estado con `useState` + localStorage y pasarlo por props *(hoy cada página lee localStorage por su cuenta)*
 - [ ] Crear la estructura de carpetas Atomic Design
-- [ ] Configurar Karma + Jasmine con una primera prueba funcionando
-- [ ] Crear las ramas de trabajo en Git
+- [ ] Configurar Karma + Jasmine con una primera prueba funcionando *(se configuró Vitest con 1 prueba; confirmar con el profesor)*
+- [x] Crear las ramas de trabajo en Git
 
 ### Vicente Barrera – Candidatos, Dashboard y Acceso
 
 **Frontend**
 - [ ] Login con roles simulados y rutas protegidas
-- [ ] Listado de candidatos con búsqueda (`Table` de react-bootstrap)
+- [ ] Listado de candidatos con búsqueda (`Table` de react-bootstrap) *(Tomás hizo la tabla de candidatos pendientes; falta la búsqueda)*
 - [ ] Formulario controlado de crear/editar candidato con validaciones (campos obligatorios, email, teléfono)
-- [ ] Dashboard con la molécula `TarjetaIndicador` (recibe props)
+- [ ] Dashboard con la molécula `TarjetaIndicador` (recibe props) *(Tomás hizo el Dashboard con indicadores; falta extraer las tarjetas a un componente con props)*
 - [ ] Navbar que muestre opciones según el rol
 
 **Pruebas (mínimo 5)**
@@ -112,7 +145,7 @@ Estados de una solicitud: **Pendiente → En proceso → Finalizada**.
 - [ ] Listado de solicitudes con filtros (estado, cargo, candidato, fecha)
 - [ ] Formulario controlado de nueva solicitud (candidato, cargo, familia de cargo, fecha, responsable)
 - [ ] Detalle de solicitud con `useParams` (ruta `/solicitudes/:id`)
-- [ ] Sección de evaluación: fecha, observaciones y cambio de estado
+- [x] Sección de evaluación: fecha, observaciones y cambio de estado *(modal en `Resumen.jsx`)*
 - [ ] Átomo `BadgeEstado` (color según el estado recibido por props)
 
 **Pruebas (mínimo 5)**
@@ -167,6 +200,7 @@ Lo siguiente **no aparece** en la carpeta `materia/`, pero se necesita para cump
 | **Jasmine + Karma, mocks y cobertura** | La rúbrica de la Evaluación Parcial 2 los exige por nombre, pero la materia aún no tiene material de testing. Conviene preguntarle al profesor si entregará una guía. |
 | **Configuración de Karma con Vite** | La materia usa create-react-app; el proyecto usa Vite y Karma no viene preparado para Vite, así que necesita una configuración aparte. |
 | **Vite** (en vez de create-react-app) | El proyecto ya se creó con Vite. Cambia solo el comando de inicio (`npm run dev` en vez de `npm start`). |
+| **Vitest** (en `feature/testing`) | Herramienta de pruebas pensada para Vite. No está en la materia, y la rúbrica pide Jasmine + Karma, así que hay que confirmar con el profesor si se acepta. |
 
 ---
 
