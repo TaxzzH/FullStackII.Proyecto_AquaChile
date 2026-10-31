@@ -1,8 +1,48 @@
+export const familiasCargo = ["Operaciones", "Calidad", "Mantenimiento", "Administración"];
+
+export const responsables = ["Juan Pérez", "Camila Fuentes", "Rodrigo Vera"];
+
+export const initialCandidatos = [
+  {
+    id: 1,
+    nombre: "María González",
+    correo: "mgonzalez@ejemplo.cl",
+    telefono: "+56 9 1234 5678",
+    cargo: "Operador de Planta",
+    familiaCargo: "Operaciones"
+  },
+  {
+    id: 2,
+    nombre: "Carlos Rojas",
+    correo: "crojas@ejemplo.cl",
+    telefono: "+56 9 8765 4321",
+    cargo: "Analista de Calidad",
+    familiaCargo: "Calidad"
+  },
+  {
+    id: 3,
+    nombre: "Andrea Soto",
+    correo: "asoto@ejemplo.cl",
+    telefono: "+56 9 5555 4444",
+    cargo: "Jefe de Turno",
+    familiaCargo: "Operaciones"
+  },
+  {
+    id: 4,
+    nombre: "Felipe Morales",
+    correo: "fmorales@ejemplo.cl",
+    telefono: "+56 9 3333 2222",
+    cargo: "Técnico Mantenimiento",
+    familiaCargo: "Mantenimiento"
+  }
+];
+
 export const initialSolicitudes = [
   {
     id: 1,
+    candidatoId: 1,
     nombreCandidato: "María González",
-    correo: "mgonzalez@gmail.com",
+    correo: "mgonzalez@ejemplo.cl",
     telefono: "+56 9 1234 5678",
     cargo: "Operador de Planta",
     familiaCargo: "Operaciones",
@@ -14,8 +54,9 @@ export const initialSolicitudes = [
   },
   {
     id: 2,
+    candidatoId: 2,
     nombreCandidato: "Carlos Rojas",
-    correo: "crojas@gmail.com",
+    correo: "crojas@ejemplo.cl",
     telefono: "+56 9 8765 4321",
     cargo: "Analista de Calidad",
     familiaCargo: "Calidad",
@@ -27,8 +68,9 @@ export const initialSolicitudes = [
   },
   {
     id: 3,
+    candidatoId: 3,
     nombreCandidato: "Andrea Soto",
-    correo: "asoto@outlook.com",
+    correo: "asoto@ejemplo.cl",
     telefono: "+56 9 5555 4444",
     cargo: "Jefe de Turno",
     familiaCargo: "Operaciones",
@@ -40,8 +82,9 @@ export const initialSolicitudes = [
   },
   {
     id: 4,
+    candidatoId: 4,
     nombreCandidato: "Felipe Morales",
-    correo: "fmorales@gmail.com",
+    correo: "fmorales@ejemplo.cl",
     telefono: "+56 9 3333 2222",
     cargo: "Técnico Mantenimiento",
     familiaCargo: "Mantenimiento",
@@ -67,6 +110,58 @@ export const saveSolicitudes = (solicitudes) => {
 };
 
 export const resetSolicitudes = () => {
+  localStorage.setItem("candidatos_aqua", JSON.stringify(initialCandidatos));
   localStorage.setItem("solicitudes_aqua", JSON.stringify(initialSolicitudes));
   return initialSolicitudes;
+};
+
+const siguienteId = (lista) => Math.max(0, ...lista.map((item) => item.id)) + 1;
+
+export const getCandidatos = () => {
+  const data = localStorage.getItem("candidatos_aqua");
+  if (!data) {
+    localStorage.setItem("candidatos_aqua", JSON.stringify(initialCandidatos));
+    return initialCandidatos;
+  }
+  return JSON.parse(data);
+};
+
+export const saveCandidatos = (candidatos) => {
+  localStorage.setItem("candidatos_aqua", JSON.stringify(candidatos));
+};
+
+export const agregarCandidato = (datos) => {
+  const candidatos = getCandidatos();
+  const nuevo = { ...datos, id: siguienteId(candidatos) };
+  saveCandidatos([...candidatos, nuevo]);
+  return nuevo;
+};
+
+export const actualizarCandidato = (id, datos) => {
+  saveCandidatos(getCandidatos().map((c) => (c.id === id ? { ...c, ...datos } : c)));
+
+  // Las solicitudes guardan una copia del contacto: se mantiene al día
+  saveSolicitudes(
+    getSolicitudes().map((s) =>
+      s.candidatoId === id
+        ? { ...s, nombreCandidato: datos.nombre, correo: datos.correo, telefono: datos.telefono }
+        : s
+    )
+  );
+};
+
+export const agregarSolicitud = (datos) => {
+  const solicitudes = getSolicitudes();
+  const candidato = getCandidatos().find((c) => c.id === datos.candidatoId);
+  const nueva = {
+    ...datos,
+    id: siguienteId(solicitudes),
+    nombreCandidato: candidato.nombre,
+    correo: candidato.correo,
+    telefono: candidato.telefono,
+    estado: "Pendiente",
+    fechaEvaluacion: ""
+  };
+  saveSolicitudes([...solicitudes, nueva]);
+  return nueva;
 };
