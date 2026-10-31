@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { Modal } from "react-bootstrap";
+import FormularioEvaluacion from "../components/organisms/FormularioEvaluacion";
 import { getSolicitudes, saveSolicitudes } from "../data/mockData";
 
 function Resumen() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [selected, setSelected] = useState(null); // Solicitud en edición
-  const [formObs, setFormObs] = useState("");
-  const [formFecha, setFormFecha] = useState("");
 
   const cargarDatos = () => {
     setSolicitudes(getSolicitudes());
@@ -18,22 +18,10 @@ function Resumen() {
   const enProceso = solicitudes.filter((s) => s.estado === "En proceso");
   const finalizadas = solicitudes.filter((s) => s.estado === "Finalizada");
 
-  const abrirModalEditar = (item) => {
-    setSelected(item);
-    setFormObs(item.observaciones || "");
-    setFormFecha(item.fechaEvaluacion || new Date().toISOString().split("T")[0]);
-  };
-
-  const handleGuardarEvaluacion = (e) => {
-    e.preventDefault();
+  const handleGuardarEvaluacion = (datos) => {
     const updated = solicitudes.map((item) => {
       if (item.id === selected.id) {
-        return {
-          ...item,
-          estado: "Finalizada",
-          fechaEvaluacion: formFecha,
-          observaciones: formObs,
-        };
+        return { ...item, ...datos };
       }
       return item;
     });
@@ -76,9 +64,9 @@ function Resumen() {
                       <td>
                         <button
                           className="btn btn-outline-primary btn-sm"
-                          onClick={() => abrirModalEditar(sol)}
+                          onClick={() => setSelected(sol)}
                         >
-                          Completar Evaluación
+                          Registrar Evaluación
                         </button>
                       </td>
                     </tr>
@@ -93,7 +81,7 @@ function Resumen() {
       {/* SECCIÓN 2: FINALIZADAS / APROBADAS */}
       <div className="card border-success">
         <div className="card-header bg-success text-white fw-bold">
-          Solicitudes Finalizadas / Aprobadas ({finalizadas.length})
+          Solicitudes Finalizadas ({finalizadas.length})
         </div>
         <div className="card-body">
           {finalizadas.length === 0 ? (
@@ -117,7 +105,7 @@ function Resumen() {
                       <td>{sol.cargo}</td>
                       <td>{sol.fechaEvaluacion}</td>
                       <td>{sol.observaciones}</td>
-                      <td><span className="badge bg-success">Aprobada</span></td>
+                      <td><span className="badge bg-success">{sol.estado}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -127,62 +115,22 @@ function Resumen() {
         </div>
       </div>
 
-      {/* FORMULARIO EDITAR / FINALIZAR */}
-      {selected && (
-        <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <form onSubmit={handleGuardarEvaluacion}>
-                <div className="modal-header">
-                  <h5 className="modal-title">
-                    Finalizar Evaluación: {selected.nombreCandidato}
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setSelected(null)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Fecha de Evaluación</label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      value={formFecha}
-                      onChange={(e) => setFormFecha(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Observaciones y Resultado</label>
-                    <textarea
-                      className="form-control"
-                      rows="4"
-                      placeholder="Ingrese los detalles y conclusión del examen psicolaboral..."
-                      value={formObs}
-                      onChange={(e) => setFormObs(e.target.value)}
-                      required
-                    ></textarea>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setSelected(null)}
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn btn-success">
-                    Guardar y Aprobar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* FORMULARIO DE EVALUACIÓN */}
+      <Modal show={Boolean(selected)} onHide={() => setSelected(null)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Evaluación: {selected?.nombreCandidato}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selected && (
+            <FormularioEvaluacion
+              key={selected.id}
+              solicitud={selected}
+              onGuardar={handleGuardarEvaluacion}
+              onCancelar={() => setSelected(null)}
+            />
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }
