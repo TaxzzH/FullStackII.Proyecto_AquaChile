@@ -12,7 +12,12 @@ describe('permisos', () => {
   test('cada rol solo tiene los permisos que define el caso', () => {
     expect(puede({ rol: 'Analista' }, 'gestionarRegistros')).toBe(true);
     expect(puede({ rol: 'Analista' }, 'evaluar')).toBe(false);
+    expect(puede({ rol: 'Evaluador' }, 'evaluar')).toBe(true);
+    expect(puede({ rol: 'Evaluador' }, 'gestionarRegistros')).toBe(false);
     expect(puede({ rol: 'Jefatura' }, 'gestionarRegistros')).toBe(false);
+    expect(puede({ rol: 'Jefatura' }, 'evaluar')).toBe(false);
+    expect(puede({ rol: 'Administrador' }, 'reiniciarDatos')).toBe(true);
+    expect(puede({ rol: 'Analista' }, 'reiniciarDatos')).toBe(false);
     expect(puede(null, 'evaluar')).toBe(false);
   });
 
