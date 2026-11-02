@@ -1,26 +1,38 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Dashboard from "./pages/Dashboard";
-import Candidatos from "./pages/Candidatos";
-import Resumen from "./pages/Resumen";
-import CandidatoForm from "./pages/CandidatoForm";
-import NuevaSolicitud from "./pages/NuevaSolicitud";
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Dashboard from './pages/Dashboard';
+import Candidatos from './pages/Candidatos';
+import Resumen from './pages/Resumen';
+import RellenarNuevoFormulario from './pages/RellenarNuevoFormulario';
+
+// Componente para controlar qué páginas muestran la barra de navegación del evaluador
+function LayoutConNavbar() {
+  const location = useLocation();
+  // El formulario público se muestra limpio, sin la navbar administrativa
+  const esFormularioPublico = location.pathname.toLowerCase() === '/rellenarnuevoformulario';
+
+  return (
+    <>
+      {!esFormularioPublico && <Navbar />}
+      <main>
+        <Routes>
+          {/* 1. Página pública de postulación */}
+          <Route path="/rellenarNuevoFormulario" element={<RellenarNuevoFormulario />} />
+
+          {/* 2. Páginas del sistema de evaluación */}
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/candidatos" element={<Candidatos />} />
+          <Route path="/resumen" element={<Resumen />} />
+        </Routes>
+      </main>
+    </>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      {/* Esto hace que la navbar se mantenga visible en todas las paginas/pantallas */}
-      <Navbar />
-      <main>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/candidatos" element={<Candidatos />} />
-          <Route path="/candidatos/nuevo" element={<CandidatoForm />} />
-          <Route path="/candidatos/:id/editar" element={<CandidatoForm />} />
-          <Route path="/solicitudes/nueva" element={<NuevaSolicitud />} />
-          <Route path="/resumen" element={<Resumen />} />
-        </Routes>
-      </main>
+      <LayoutConNavbar />
     </BrowserRouter>
   );
 }

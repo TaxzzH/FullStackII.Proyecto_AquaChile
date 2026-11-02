@@ -1,119 +1,165 @@
-import { useEffect, useState } from "react";
-import { Alert, Button } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
-import { getCandidatos, getSolicitudes, saveSolicitudes } from "../data/mockData";
+import { useEffect, useState } from 'react';
+import { Alert, Badge, Button, Card, Spinner, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { getCandidatos } from '../data/mockData';
+import { iniciarEvaluacion, obtenerCandidatos } from '../services/api';
 
 function Candidatos() {
-  const [pendientes, setPendientes] = useState([]);
-  const [candidatos] = useState(getCandidatos);
-  const mensaje = useLocation().state?.mensaje;
+  const [candidatos, setCandidatos] = useState(() => {
+    try {
+      const data = getCandidatos();
+      return data.map((c) => ({
+        ...c,
+        solicitudId: c.id,
+        estadoSolicitud: 'Pendiente',
+      }));
+    } catch {
+      return [];
+    }
+  });
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
+  const [procesandoId, setProcesandoId] = useState(null);
 
-  useEffect(() => {
-    const data = getSolicitudes();
-    setPendientes(data.filter((s) => s.estado === "Pendiente"));
-  }, []);
-
-  const handleIniciarProceso = (id) => {
-    const data = getSolicitudes();
-    const updated = data.map((item) => {
-      if (item.id === id) {
-        return { ...item, estado: "En proceso" };
-      }
-      return item;
-    });
-    saveSolicitudes(updated);
-    setPendientes(updated.filter((s) => s.estado === "Pendiente"));
+  const cargarCandidatos = async () => {
+    try {
+      const data = await obtenerCandidatos();
+      setCandidatos(data);
+    } catch (err) {
+      console.warn('API no disponible temporalmente, usando estado local:', err.message);
+    }
   };
 
+  useEffect(() => {
+    cargarCandidatos();
+  }, []);
+
+  const handleIniciar = async (solicitudId, nombre) => {
+    try {
+      setProcesandoId(solicitudId);
+      await iniciarEvaluacion(solicitudId);
+      setMensajeExito(`¡Evaluación iniciada para ${nombre}! El candidato ahora se encuentra en la sección Resumen.`);
+      // Actualizamos inmediatamente el estado para que desaparezca de esta vista
+      setCandidatos((prev) =>
+        prev.map((c) => (c.solicitudId === solicitudId ? { ...c, estadoSolicitud: 'En proceso' } : c))
+      );
+      await cargarCandidatos();
+    } catch (err) {
+      alert(`Error al iniciar evaluación: ${err.message}`);
+    } finally {
+      setProcesandoId(null);
+    }
+  };
+
+  // Solo se muestran los postulantes que están en estado "Pendiente"
+  const candidatosPendientes = candidatos.filter((c) => c.estadoSolicitud === 'Pendiente');
+
   return (
-    <div className="container mt-4">
-      {mensaje && <Alert variant="success">{mensaje}</Alert>}
-
+    <div className="container mt-4 mb-5">
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h2 className="mb-0">Candidatos</h2>
-        <div className="d-flex gap-2">
-          <Button as={Link} to="/candidatos/nuevo" variant="primary">Registrar candidato</Button>
-          <Button as={Link} to="/solicitudes/nueva" variant="outline-primary">Nueva solicitud</Button>
+        <div>
+          <h2 className="mb-1">Candidatos Pendientes</h2>
+          <p className="text-muted mb-0">
+            Postulantes que enviaron su formulario y están esperando el inicio de su evaluación.
+          </p>
+        </div>
+        <div>
+          <Button
+            as={Link}
+            to="/rellenarNuevoFormulario"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outline-secondary"
+            size="sm"
+          >
+            ↗ Abrir Formulario Público
+          </Button>
         </div>
       </div>
 
-      <div className="table-responsive mb-5">
-        <table className="table table-hover align-middle border">
-          <thead className="table-light">
-            <tr>
-              <th>Nombre</th>
-              <th>Contacto</th>
-              <th>Cargo Postulado</th>
-              <th>Familia de Cargo</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {candidatos.map((c) => (
-              <tr key={c.id}>
-                <td className="fw-bold">{c.nombre}</td>
-                <td>
-                  <div>{c.correo}</div>
-                  <small className="text-muted">{c.telefono}</small>
-                </td>
-                <td>{c.cargo}</td>
-                <td><span className="badge bg-secondary">{c.familiaCargo}</span></td>
-                <td>
-                  <div className="d-flex gap-2">
-                    <Button as={Link} to={`/candidatos/${c.id}/editar`} variant="outline-secondary" size="sm">Editar</Button>
-                    <Button as={Link} to={`/solicitudes/nueva?candidato=${c.id}`} variant="outline-primary" size="sm">Crear solicitud</Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {mensajeExito && (
+        <Alert variant="success" dismissible onClose={() => setMensajeExito('')}>
+          {mensajeExito}{' '}
+          <Link to="/resumen" className="fw-bold alert-link">
+            Ir a Resumen
+          </Link>
+        </Alert>
+      )}
 
-      <h3 className="h4 mb-2">Solicitudes pendientes</h3>
-      <p className="text-muted">
-        Solicitudes recibidas que aún no se han asignado ni iniciado evaluación.
-      </p>
+      {error && <Alert variant="danger">{error}</Alert>}
 
-      {pendientes.length === 0 ? (
-        <div className="alert alert-secondary">No hay solicitudes pendientes en este momento.</div>
+      {cargando ? (
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="primary" />
+          <p className="text-muted mt-2">Consultando candidatos desde MySQL...</p>
+        </div>
+      ) : candidatosPendientes.length === 0 ? (
+        <Card className="shadow-sm border-0 p-4 text-center">
+          <Card.Body>
+            <h5 className="text-muted mb-2">No hay candidatos pendientes en este momento</h5>
+            <p className="text-muted small mb-3">
+              Todos los postulantes recibidos ya tienen su evaluación iniciada o completada. Las nuevas postulaciones
+              ingresadas desde <code>/rellenarNuevoFormulario</code> aparecerán aquí.
+            </p>
+            <Button as={Link} to="/resumen" variant="primary" size="sm">
+              Ver Evaluaciones en Resumen
+            </Button>
+          </Card.Body>
+        </Card>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-hover align-middle border">
-            <thead className="table-light">
-              <tr>
-                <th>Candidato</th>
-                <th>Contacto</th>
-                <th>Cargo Postulado</th>
-                <th>Familia de Cargo</th>
-                <th>Fecha Solicitud</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendientes.map((sol) => (
-                <tr key={sol.id}>
-                  <td className="fw-bold">{sol.nombreCandidato}</td>
-                  <td>
-                    <div>{sol.correo}</div>
-                    <small className="text-muted">{sol.telefono}</small>
-                  </td>
-                  <td>{sol.cargo}</td>
-                  <td><span className="badge bg-secondary">{sol.familiaCargo}</span></td>
-                  <td>{sol.fechaSolicitud}</td>
-                  <td>
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleIniciarProceso(sol.id)}
-                    >
-                      Iniciar Evaluación
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Card className="shadow-sm border-0">
+          <Card.Body className="p-0">
+            <div className="table-responsive">
+              <Table hover className="align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Contacto</th>
+                    <th>Cargo Postulado</th>
+                    <th>Familia de Cargo</th>
+                    <th>Fecha Envío</th>
+                    <th>Estado</th>
+                    <th className="text-end">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {candidatosPendientes.map((c) => (
+                    <tr key={c.id}>
+                      <td className="fw-bold">{c.nombre}</td>
+                      <td>
+                        <div>{c.correo}</div>
+                        <small className="text-muted">{c.telefono}</small>
+                      </td>
+                      <td>{c.cargo}</td>
+                      <td>
+                        <Badge bg="secondary" className="fw-normal">
+                          {c.familiaCargo}
+                        </Badge>
+                      </td>
+                      <td>{c.fechaSolicitud || 'Reciente'}</td>
+                      <td>
+                        <Badge bg="warning" text="dark">
+                          Pendiente
+                        </Badge>
+                      </td>
+                      <td className="text-end">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          disabled={procesandoId === c.solicitudId}
+                          onClick={() => handleIniciar(c.solicitudId, c.nombre)}
+                        >
+                          {procesandoId === c.solicitudId ? 'Iniciando...' : 'Iniciar Evaluación'}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+        </Card>
       )}
     </div>
   );

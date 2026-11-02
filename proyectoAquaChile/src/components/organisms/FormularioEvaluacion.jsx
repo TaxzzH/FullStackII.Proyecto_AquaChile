@@ -5,7 +5,8 @@ import { hoyISO, validarEvaluacion } from '../../utils/validaciones';
 
 const ESTADOS = [
   { valor: 'En proceso', texto: 'En proceso' },
-  { valor: 'Finalizada', texto: 'Finalizada' },
+  { valor: 'Finalizada', texto: 'Finalizada (Aprobada)' },
+  { valor: 'Rechazada', texto: 'Rechazada' },
 ];
 
 function FormularioEvaluacion({ solicitud, onGuardar, onCancelar }) {
@@ -33,21 +34,41 @@ function FormularioEvaluacion({ solicitud, onGuardar, onCancelar }) {
 
   return (
     <Form noValidate onSubmit={handleSubmit}>
-      <CampoFormulario id="fechaEvaluacion" etiqueta="Fecha de evaluación" type="date" min={solicitud.fechaSolicitud} value={datos.fechaEvaluacion} error={errores.fechaEvaluacion} onChange={handleChange} />
-      <CampoFormulario id="estado" etiqueta="Estado" textoVacio="Selecciona un estado" opciones={ESTADOS} value={datos.estado} error={errores.estado} onChange={handleChange} />
+      <CampoFormulario
+        id="fechaEvaluacion"
+        etiqueta="Fecha de evaluación"
+        type="date"
+        min={solicitud.fechaSolicitud}
+        value={datos.fechaEvaluacion}
+        error={errores.fechaEvaluacion}
+        onChange={handleChange}
+      />
+      <CampoFormulario
+        id="estado"
+        etiqueta="Estado"
+        textoVacio="Selecciona un estado"
+        opciones={ESTADOS}
+        value={datos.estado}
+        error={errores.estado}
+        onChange={handleChange}
+      />
       <CampoFormulario
         id="observaciones"
         etiqueta="Resultado u observaciones"
         as="textarea"
         rows={4}
-        placeholder="Ingrese los detalles y conclusión de la evaluación..."
+        placeholder="Ingrese los detalles y conclusión de la evaluación (justificación técnica, psicolaboral o motivo de rechazo)..."
         value={datos.observaciones}
         error={errores.observaciones}
         onChange={handleChange}
       />
       <div className="d-flex justify-content-end gap-2">
-        <Button type="button" variant="secondary" onClick={onCancelar}>Cancelar</Button>
-        <Button type="submit" variant="success">Guardar evaluación</Button>
+        <Button type="button" variant="secondary" onClick={onCancelar}>
+          Cancelar
+        </Button>
+        <Button type="submit" variant="success">
+          Guardar evaluación
+        </Button>
       </div>
     </Form>
   );
