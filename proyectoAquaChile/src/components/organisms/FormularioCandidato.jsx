@@ -5,7 +5,8 @@ import { validarCandidato } from '../../utils/validaciones';
 
 const CANDIDATO_VACIO = { nombre: '', correo: '', telefono: '', cargo: '', familiaCargo: '' };
 
-function FormularioCandidato({ candidatoInicial, candidatos, familias, onGuardar, onCancelar }) {
+// Lo usan el registro interno y la postulación pública: cambia lo que reciben por props
+function FormularioCandidato({ candidatoInicial, candidatos = [], familias, onGuardar, onCancelar, enviando = false, textoGuardar = 'Guardar candidato' }) {
   const [datos, setDatos] = useState({ ...CANDIDATO_VACIO, ...candidatoInicial });
   const [errores, setErrores] = useState({});
 
@@ -58,8 +59,8 @@ function FormularioCandidato({ candidatoInicial, candidatos, familias, onGuardar
         </Col>
       </Row>
       <div className="d-flex gap-2">
-        <Button type="submit" variant="primary">Guardar candidato</Button>
-        <Button type="button" variant="secondary" onClick={onCancelar}>Cancelar</Button>
+        <Button type="submit" variant="primary" disabled={enviando}>{enviando ? 'Guardando...' : textoGuardar}</Button>
+        {onCancelar && <Button type="button" variant="outline-secondary" onClick={onCancelar}>Cancelar</Button>}
       </div>
     </Form>
   );

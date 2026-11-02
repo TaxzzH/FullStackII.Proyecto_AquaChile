@@ -2,28 +2,17 @@ import { useState, useEffect } from 'react';
 
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      // 1. Comprobar si el usuario ya eligió una preferencia anteriormente
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) return savedTheme;
+    // 1. Comprobar si el usuario ya eligió una preferencia anteriormente
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme;
 
-      // 2. Si no hay preferencia guardada, usar la del sistema operativo
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return 'light';
+    // 2. Si no hay preferencia guardada, usar la del sistema operativo
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
   useEffect(() => {
-    const root = document.documentElement; // Aplica el tema en <html>
-
-    // Para Bootstrap 5.3+ (cambia el tema de toda la app automáticamente)
-    root.setAttribute('data-bs-theme', theme);
-
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    // Bootstrap 5.3 y los tokens del sistema de diseño dependen de este atributo
+    document.documentElement.setAttribute('data-bs-theme', theme);
 
     // Guardar la elección en localStorage para futuras visitas
     localStorage.setItem('theme', theme);

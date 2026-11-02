@@ -1,15 +1,15 @@
 import { Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-// Indicador del dashboard: título, valor, descripción y enlace al listado relacionado
-function TarjetaIndicador({ titulo, valor, descripcion, color, enlace, textoEnlace }) {
+// Indicador del dashboard. "tono": neutro, pendiente, proceso, finalizada o rechazada.
+function TarjetaIndicador({ titulo, valor, descripcion, tono = 'neutro', enlace, textoEnlace }) {
   return (
-    <Card bg={color} text={color === 'warning' || color === 'info' ? 'dark' : 'white'} className="h-100 shadow-sm">
+    <Card className={`indicador indicador-${tono} h-100`}>
       <Card.Body>
-        <Card.Title as="h5">{titulo}</Card.Title>
-        <p className="card-text display-4 fw-bold">{valor}</p>
+        <Card.Title as="h3">{titulo}</Card.Title>
+        <p className="indicador-valor">{valor}</p>
         <p className="card-text"><small>{descripcion}</small></p>
-        <Button as={Link} to={enlace} variant="light" size="sm" className="text-dark">{textoEnlace}</Button>
+        <Button as={Link} to={enlace} variant="outline-secondary" size="sm">{textoEnlace}</Button>
       </Card.Body>
     </Card>
   );

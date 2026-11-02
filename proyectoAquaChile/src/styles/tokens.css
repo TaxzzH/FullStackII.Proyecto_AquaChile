@@ -1,0 +1,89 @@
+/* ==========================================================================
+   Sistema de diseño AquaChile: tokens
+   Toda decisión de color, forma y sombra nace aquí. Los componentes solo usan
+   estas variables; nunca escriben un color directamente.
+   La paleta parte del azul pizarra del logo de AquaChile.
+   ========================================================================== */
+
+:root,
+[data-bs-theme="light"] {
+  /* Marca */
+  --aqua-acento: #2f4a60;
+  --aqua-acento-hover: #243a4c;
+  --aqua-sobre-acento: #ffffff;
+  --aqua-barra: #b0cef2;
+
+  /* Superficies y texto */
+  --aqua-fondo: #f4f7fa;
+  --aqua-superficie: #ffffff;
+  --aqua-superficie-suave: #e9eff5;
+  --aqua-borde: #d5dfe8;
+  --aqua-texto: #1c2a36;
+  --aqua-texto-suave: #52636f;
+
+  /* Estados de una solicitud: fondo y texto de cada uno */
+  --aqua-pendiente-fondo: #fdf0cc;
+  --aqua-pendiente-texto: #664d03;
+  --aqua-proceso-fondo: #d4e9f7;
+  --aqua-proceso-texto: #0b4a73;
+  --aqua-finalizada-fondo: #d3ecdf;
+  --aqua-finalizada-texto: #0f5132;
+  --aqua-rechazada-fondo: #f9dcdc;
+  --aqua-rechazada-texto: #842029;
+
+  /* Forma */
+  --aqua-radio: 0.5rem;
+  --aqua-radio-pequeno: 0.375rem;
+  --aqua-sombra: 0 1px 3px rgba(28, 42, 54, 0.12);
+  --aqua-anillo-foco: 0 0 0 0.2rem rgba(47, 74, 96, 0.3);
+
+  /* Tipografía: fuentes del sistema, para que funcione sin conexión en la demostración */
+  --aqua-fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Bootstrap toma estos valores en todos sus componentes */
+  --bs-body-font-family: var(--aqua-fuente);
+  --bs-body-bg: var(--aqua-fondo);
+  --bs-body-color: var(--aqua-texto);
+  --bs-secondary-color: var(--aqua-texto-suave);
+  --bs-border-color: var(--aqua-borde);
+  --bs-border-radius: var(--aqua-radio);
+  --bs-link-color: var(--aqua-acento);
+  --bs-link-color-rgb: 47, 74, 96;
+  --bs-link-hover-color: var(--aqua-acento-hover);
+  --bs-link-hover-color-rgb: 36, 58, 76;
+}
+
+[data-bs-theme="dark"] {
+  --aqua-acento: #8fbce8;
+  --aqua-acento-hover: #b0cef2;
+  --aqua-sobre-acento: #0f172a;
+  --aqua-barra: #1e293b;
+
+  --aqua-fondo: #0f172a;
+  --aqua-superficie: #1e293b;
+  --aqua-superficie-suave: #273449;
+  --aqua-borde: #3a4a60;
+  --aqua-texto: #f1f5f9;
+  --aqua-texto-suave: #a9b7c6;
+
+  --aqua-pendiente-fondo: #4a3a0b;
+  --aqua-pendiente-texto: #ffe08a;
+  --aqua-proceso-fondo: #123e5c;
+  --aqua-proceso-texto: #b5dcf7;
+  --aqua-finalizada-fondo: #14432e;
+  --aqua-finalizada-texto: #a8e3c5;
+  --aqua-rechazada-fondo: #5a1f25;
+  --aqua-rechazada-texto: #f9c6ca;
+
+  --aqua-sombra: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --aqua-anillo-foco: 0 0 0 0.2rem rgba(143, 188, 232, 0.35);
+
+  --bs-body-bg: var(--aqua-fondo);
+  --bs-body-color: var(--aqua-texto);
+  --bs-secondary-color: var(--aqua-texto-suave);
+  --bs-border-color: var(--aqua-borde);
+  --bs-link-color: var(--aqua-acento);
+  --bs-link-color-rgb: 143, 188, 232;
+  --bs-link-hover-color: var(--aqua-acento-hover);
+  --bs-link-hover-color-rgb: 176, 206, 242;
+}

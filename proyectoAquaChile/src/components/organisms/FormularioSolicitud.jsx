@@ -3,7 +3,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import CampoFormulario from '../molecules/CampoFormulario';
 import { hoyISO, validarSolicitud } from '../../utils/validaciones';
 
-function FormularioSolicitud({ candidatos, familias, responsables, candidatoInicialId, onGuardar, onCancelar }) {
+function FormularioSolicitud({ candidatos, familias, responsables, candidatoInicialId, onGuardar, onCancelar, enviando = false }) {
   const [datos, setDatos] = useState(() => {
     const candidato = candidatos.find((c) => c.id === candidatoInicialId);
     return {
@@ -96,8 +96,8 @@ function FormularioSolicitud({ candidatos, familias, responsables, candidatoInic
         </Col>
       </Row>
       <div className="d-flex gap-2">
-        <Button type="submit" variant="primary">Crear solicitud</Button>
-        <Button type="button" variant="secondary" onClick={onCancelar}>Cancelar</Button>
+        <Button type="submit" variant="primary" disabled={enviando}>{enviando ? 'Guardando...' : 'Crear solicitud'}</Button>
+        <Button type="button" variant="outline-secondary" onClick={onCancelar}>Cancelar</Button>
       </div>
     </Form>
   );
