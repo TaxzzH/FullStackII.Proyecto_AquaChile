@@ -16,6 +16,9 @@ export function useTheme() {
   useEffect(() => {
     const root = document.documentElement; // Aplica el tema en <html>
 
+    // Para Bootstrap 5.3+ (cambia el tema de toda la app automáticamente)
+    root.setAttribute('data-bs-theme', theme);
+
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {

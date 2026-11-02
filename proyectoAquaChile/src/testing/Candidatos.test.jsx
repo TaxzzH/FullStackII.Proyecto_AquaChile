@@ -17,7 +17,7 @@ describe('Candidatos', () => {
   test('muestra una fila con enlaces de edición por cada candidato', () => {
     render(
       <MemoryRouter>
-        <Candidatos />
+        <Candidatos usuario={{ nombre: 'Sofía Lagos', rol: 'Analista' }} />
       </MemoryRouter>
     );
 

@@ -24,7 +24,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0.5rem 0;
 }
 
 .theme-switch {
@@ -87,4 +87,10 @@ html.dark .form-control {
 html.dark .form-control:focus {
   background-color: var(--bg-color);
   color: var(--text-color);
+}
+/* Encabezados .table-light: Bootstrap los pinta con sus propias variables */
+html.dark .table-light {
+  --bs-table-bg: var(--navbar-bg);
+  --bs-table-color: var(--text-color);
+  --bs-table-border-color: rgba(128, 128, 128, 0.4);
 }

@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Alert, Button } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { getCandidatos, getSolicitudes, saveSolicitudes } from "../data/mockData";
+import { COLUMNAS_CANDIDATOS, descargarCSV } from "../utils/exportar";
+import { puede, puedeEvaluar, solicitudesVisibles } from "../utils/permisos";
 
-function Candidatos() {
-  const [pendientes, setPendientes] = useState([]);
+function Candidatos({ usuario }) {
+  const soloPendientes = (data) =>
+    solicitudesVisibles(usuario, data).filter((s) => s.estado === "Pendiente");
+
+  const [pendientes, setPendientes] = useState(() => soloPendientes(getSolicitudes()));
   const [candidatos] = useState(getCandidatos);
   const mensaje = useLocation().state?.mensaje;
-
-  useEffect(() => {
-    const data = getSolicitudes();
-    setPendientes(data.filter((s) => s.estado === "Pendiente"));
-  }, []);
+  const gestiona = puede(usuario, "gestionarRegistros");
 
   const handleIniciarProceso = (id) => {
     const data = getSolicitudes();
@@ -22,7 +23,7 @@ function Candidatos() {
       return item;
     });
     saveSolicitudes(updated);
-    setPendientes(updated.filter((s) => s.estado === "Pendiente"));
+    setPendientes(soloPendientes(updated));
   };
 
   return (
@@ -31,9 +32,12 @@ function Candidatos() {
 
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <h2 className="mb-0">Candidatos</h2>
-        <div className="d-flex gap-2">
-          <Button as={Link} to="/candidatos/nuevo" variant="primary">Registrar candidato</Button>
-          <Button as={Link} to="/solicitudes/nueva" variant="outline-primary">Nueva solicitud</Button>
+        <div className="d-flex flex-wrap gap-2">
+          {gestiona && <Button as={Link} to="/candidatos/nuevo" variant="primary">Registrar candidato</Button>}
+          {gestiona && <Button as={Link} to="/solicitudes/nueva" variant="outline-primary">Nueva solicitud</Button>}
+          <Button variant="outline-success" onClick={() => descargarCSV("candidatos.csv", candidatos, COLUMNAS_CANDIDATOS)}>
+            Exportar a Excel
+          </Button>
         </div>
       </div>
 
@@ -45,7 +49,7 @@ function Candidatos() {
               <th>Contacto</th>
               <th>Cargo Postulado</th>
               <th>Familia de Cargo</th>
-              <th>Acciones</th>
+              {gestiona && <th>Acciones</th>}
             </tr>
           </thead>
           <tbody>
@@ -58,12 +62,14 @@ function Candidatos() {
                 </td>
                 <td>{c.cargo}</td>
                 <td><span className="badge bg-secondary">{c.familiaCargo}</span></td>
-                <td>
-                  <div className="d-flex gap-2">
-                    <Button as={Link} to={`/candidatos/${c.id}/editar`} variant="outline-secondary" size="sm">Editar</Button>
-                    <Button as={Link} to={`/solicitudes/nueva?candidato=${c.id}`} variant="outline-primary" size="sm">Crear solicitud</Button>
-                  </div>
-                </td>
+                {gestiona && (
+                  <td>
+                    <div className="d-flex gap-2">
+                      <Button as={Link} to={`/candidatos/${c.id}/editar`} variant="outline-secondary" size="sm">Editar</Button>
+                      <Button as={Link} to={`/solicitudes/nueva?candidato=${c.id}`} variant="outline-primary" size="sm">Crear solicitud</Button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -102,12 +108,16 @@ function Candidatos() {
                   <td><span className="badge bg-secondary">{sol.familiaCargo}</span></td>
                   <td>{sol.fechaSolicitud}</td>
                   <td>
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleIniciarProceso(sol.id)}
-                    >
-                      Iniciar Evaluación
-                    </button>
+                    {puedeEvaluar(usuario, sol) ? (
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleIniciarProceso(sol.id)}
+                      >
+                        Iniciar Evaluación
+                      </button>
+                    ) : (
+                      <Link to={`/solicitudes/${sol.id}`}>Ver detalle</Link>
+                    )}
                   </td>
                 </tr>
               ))}
