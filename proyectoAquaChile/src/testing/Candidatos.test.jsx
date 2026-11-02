@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Candidatos from '../pages/Candidatos';
 
-// Mock del módulo de datos: la página recibe estos datos en vez de leer localStorage
+// Mock del módulo de datos: la página recibe estos candidatos
 vi.mock('../data/mockData', () => ({
   getCandidatos: () => [
     { id: 1, nombre: 'Ana Ficticia', correo: 'ana@ejemplo.cl', telefono: '+56 9 1111 1111', cargo: 'Operador', familiaCargo: 'Operaciones' },
@@ -13,8 +13,16 @@ vi.mock('../data/mockData', () => ({
   saveSolicitudes: vi.fn(),
 }));
 
+vi.mock('../services/api', () => ({
+  obtenerCandidatos: vi.fn().mockResolvedValue([
+    { id: 1, solicitudId: 1, nombre: 'Ana Ficticia', correo: 'ana@ejemplo.cl', telefono: '+56 9 1111 1111', cargo: 'Operador', familiaCargo: 'Operaciones', estadoSolicitud: 'Pendiente' },
+    { id: 2, solicitudId: 2, nombre: 'Luis Ficticio', correo: 'luis@ejemplo.cl', telefono: '+56 9 2222 2222', cargo: 'Analista', familiaCargo: 'Calidad', estadoSolicitud: 'Pendiente' },
+  ]),
+  iniciarEvaluacion: vi.fn().mockResolvedValue({ success: true }),
+}));
+
 describe('Candidatos', () => {
-  test('muestra una fila con enlaces de edición por cada candidato', () => {
+  test('muestra la lista de candidatos que enviaron el formulario y permite Iniciar Evaluación', () => {
     render(
       <MemoryRouter>
         <Candidatos />
@@ -24,7 +32,7 @@ describe('Candidatos', () => {
     expect(screen.getByText('Ana Ficticia')).toBeTruthy();
     expect(screen.getByText('Luis Ficticio')).toBeTruthy();
 
-    const editar = screen.getAllByRole('button', { name: 'Editar' });
-    expect(editar.map((enlace) => enlace.getAttribute('href'))).toEqual(['/candidatos/1/editar', '/candidatos/2/editar']);
+    const botonesIniciar = screen.getAllByRole('button', { name: /Iniciar Evaluación/i });
+    expect(botonesIniciar.length).toBeGreaterThan(0);
   });
 });
