@@ -1,83 +1,56 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getSolicitudes, resetSolicitudes } from "../data/mockData";
+import { useState } from "react";
+import { Button, Col, Container, Row } from "react-bootstrap";
+import TarjetaIndicador from "../components/molecules/TarjetaIndicador";
+import { getCandidatos, getSolicitudes, resetSolicitudes } from "../data/mockData";
+import { descargarJSON, estructurarDatos } from "../utils/exportar";
+import { puede } from "../utils/permisos";
 
-function Dashboard() {
-  const [stats, setStats] = useState({ pendientes: 0, enProceso: 0, finalizadas: 0 });
-  const evaluadorNombre = "Juan Pérez";
+function Dashboard({ usuario }) {
+  const [candidatos] = useState(getCandidatos);
+  const [solicitudes] = useState(getSolicitudes);
+
+  const contar = (estado) => solicitudes.filter((s) => s.estado === estado).length;
 
   const handleReset = () => {
-  resetSolicitudes();
-  window.location.reload(); // Recarga para refrescar los contadores
-};
-
-  useEffect(() => {
-    const data = getSolicitudes();
-    setStats({
-      pendientes: data.filter((s) => s.estado === "Pendiente").length,
-      enProceso: data.filter((s) => s.estado === "En proceso").length,
-      finalizadas: data.filter((s) => s.estado === "Finalizada").length,
-    });
-  }, []);
+    resetSolicitudes();
+    window.location.reload(); // Recarga para refrescar los contadores
+  };
 
   return (
-    <div className="container mt-4">
-
+    <Container className="mt-4">
       <div className="p-4 mb-4 rounded-3 welcome-card">
-        <h1 className="display-6 fw-bold">¡Bienvenido(a), {evaluadorNombre}!</h1>
+        <h1 className="display-6 fw-bold">¡Bienvenido(a), {usuario.nombre}!</h1>
         <p className="lead text-subtle mb-0">
-          Panel de control para la gestión y revisión de evaluaciones psicolaborales en AquaChile.
+          Panel de control para la gestión y revisión de evaluaciones psicolaborales en AquaChile. Rol: {usuario.rol}.
         </p>
       </div>
 
-      <div className="row g-4">
-        <div className="col-md-4">
-          <div className="card text-white bg-warning h-100 shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title">Solicitudes Pendientes</h5>
-              <p className="card-text display-4 fw-bold">{stats.pendientes}</p>
-              <p className="card-text"><small>Nuevas solicitudes sin revisar</small></p>
-              <Link to="/candidatos" className="btn btn-light text-dark btn-sm">
-                Ver Candidatos
-              </Link>
-            </div>
-          </div>
-        </div>
+      <Row className="g-4">
+        <Col xs={12} sm={6} lg={3}>
+          <TarjetaIndicador titulo="Total de Candidatos" valor={candidatos.length} descripcion="Candidatos registrados" color="primary" enlace="/candidatos" textoEnlace="Ver Candidatos" />
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <TarjetaIndicador titulo="Solicitudes Pendientes" valor={contar("Pendiente")} descripcion="Nuevas solicitudes sin revisar" color="warning" enlace="/solicitudes?estado=Pendiente" textoEnlace="Ver Pendientes" />
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <TarjetaIndicador titulo="En Proceso" valor={contar("En proceso")} descripcion="Evaluaciones en curso" color="info" enlace="/solicitudes?estado=En proceso" textoEnlace="Ver En Proceso" />
+        </Col>
+        <Col xs={12} sm={6} lg={3}>
+          <TarjetaIndicador titulo="Finalizadas" valor={contar("Finalizada")} descripcion="Evaluaciones completadas" color="success" enlace="/solicitudes?estado=Finalizada" textoEnlace="Ver Finalizadas" />
+        </Col>
+      </Row>
 
-        <div className="col-md-4">
-          <div className="card text-white bg-info h-100 shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title">En Proceso</h5>
-              <p className="card-text display-4 fw-bold">{stats.enProceso}</p>
-              <p className="card-text"><small>Evaluaciones en curso</small></p>
-              <Link to="/resumen" className="btn btn-light text-dark btn-sm">
-                Ir a Resumen
-              </Link>
-            </div>
-          </div>
+      {puede(usuario, "reiniciarDatos") && (
+        <div className="d-flex flex-wrap gap-2 mt-4">
+          <Button variant="outline-success" size="sm" onClick={() => descargarJSON("datos_aquachile.json", estructurarDatos(candidatos, solicitudes))}>
+            Exportar datos (JSON)
+          </Button>
+          <Button variant="outline-danger" size="sm" onClick={handleReset}>
+            Resetear datos de prueba
+          </Button>
         </div>
-
-        <div className="col-md-4">
-          <div className="card text-white bg-success h-100 shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title">Aprobadas / Finalizadas</h5>
-              <p className="card-text display-4 fw-bold">{stats.finalizadas}</p>
-              <p className="card-text"><small>Evaluaciones completadas</small></p>
-              <Link to="/resumen" className="btn btn-light text-dark btn-sm">
-                Ver Historial
-              </Link>
-            </div>
-          </div>
-        </div>
-        
-        <div> 
-          <button className="btn btn-outline-danger btn-sm mt-3" onClick={handleReset}>
-            🔄 Resetear datos de prueba
-          </button>
-        </div>     
-      </div>
-    </div>
-
+      )}
+    </Container>
   );
 }
 

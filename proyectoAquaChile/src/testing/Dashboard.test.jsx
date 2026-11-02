@@ -13,6 +13,7 @@ vi.mock('../data/mockData', () => ({
     { id: 5, estado: 'En proceso' },
     { id: 6, estado: 'Finalizada' },
   ],
+  getCandidatos: () => [{ id: 1 }, { id: 2 }],
   resetSolicitudes: vi.fn(),
 }));
 
@@ -23,12 +24,13 @@ describe('Dashboard', () => {
   test('calcula los totales por estado', () => {
     render(
       <MemoryRouter>
-        <Dashboard />
+        <Dashboard usuario={{ nombre: 'Marta Díaz', rol: 'Jefatura' }} />
       </MemoryRouter>
     );
 
+    expect(totalDeTarjeta('Total de Candidatos')).toBe('2');
     expect(totalDeTarjeta('Solicitudes Pendientes')).toBe('3');
     expect(totalDeTarjeta('En Proceso')).toBe('2');
-    expect(totalDeTarjeta('Aprobadas / Finalizadas')).toBe('1');
+    expect(totalDeTarjeta('Finalizadas')).toBe('1');
   });
 });

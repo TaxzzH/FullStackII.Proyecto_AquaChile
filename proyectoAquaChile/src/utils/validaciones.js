@@ -8,7 +8,13 @@ export const hoyISO = () => {
 
 const vacio = (valor) => !String(valor ?? "").trim();
 
-export const validarCandidato = (datos, candidatos = [], idActual = null) => {
+export const validarIngreso = (datos) => {
+  const errores = {};
+  if (vacio(datos.usuarioId)) errores.usuarioId = "Selecciona un usuario para ingresar.";
+  return errores;
+};
+
+export const validarCandidato =(datos, candidatos = [], idActual = null) => {
   const errores = {};
   const correo = String(datos.correo ?? "").trim().toLowerCase();
 

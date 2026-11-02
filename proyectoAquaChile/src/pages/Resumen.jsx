@@ -1,22 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import BadgeEstado from "../components/atoms/BadgeEstado";
 import FormularioEvaluacion from "../components/organisms/FormularioEvaluacion";
 import { getSolicitudes, saveSolicitudes } from "../data/mockData";
+import { puedeEvaluar, solicitudesVisibles } from "../utils/permisos";
 
-function Resumen() {
-  const [solicitudes, setSolicitudes] = useState([]);
+function Resumen({ usuario }) {
+  const [solicitudes, setSolicitudes] = useState(getSolicitudes);
   const [selected, setSelected] = useState(null); // Solicitud en edición
 
-  const cargarDatos = () => {
-    setSolicitudes(getSolicitudes());
-  };
-
-  useEffect(() => {
-    cargarDatos();
-  }, []);
-
-  const enProceso = solicitudes.filter((s) => s.estado === "En proceso");
-  const finalizadas = solicitudes.filter((s) => s.estado === "Finalizada");
+  const visibles = solicitudesVisibles(usuario, solicitudes);
+  const enProceso = visibles.filter((s) => s.estado === "En proceso");
+  const finalizadas = visibles.filter((s) => s.estado === "Finalizada");
 
   const handleGuardarEvaluacion = (datos) => {
     const updated = solicitudes.map((item) => {
@@ -62,12 +58,16 @@ function Resumen() {
                       <td>{sol.evaluador}</td>
                       <td>{sol.observaciones || <span className="text-muted">Sin observaciones</span>}</td>
                       <td>
-                        <button
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() => setSelected(sol)}
-                        >
-                          Registrar Evaluación
-                        </button>
+                        {puedeEvaluar(usuario, sol) ? (
+                          <button
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => setSelected(sol)}
+                          >
+                            Registrar Evaluación
+                          </button>
+                        ) : (
+                          <Link to={`/solicitudes/${sol.id}`}>Ver detalle</Link>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -105,7 +105,7 @@ function Resumen() {
                       <td>{sol.cargo}</td>
                       <td>{sol.fechaEvaluacion}</td>
                       <td>{sol.observaciones}</td>
-                      <td><span className="badge bg-success">{sol.estado}</span></td>
+                      <td><BadgeEstado estado={sol.estado} /></td>
                     </tr>
                   ))}
                 </tbody>
