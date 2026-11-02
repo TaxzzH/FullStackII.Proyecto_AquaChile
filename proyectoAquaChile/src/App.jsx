@@ -1,20 +1,27 @@
 import { useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import RutaProtegida from "./components/RutaProtegida";
-import { cerrarSesion, getSesion, iniciarSesion } from "./data/mockData";
-import Dashboard from "./pages/Dashboard";
-import Candidatos from "./pages/Candidatos";
-import Resumen from "./pages/Resumen";
+import { cerrarSesion, getSesion, iniciarSesion } from "./data/catalogos";
 import CandidatoForm from "./pages/CandidatoForm";
-import NuevaSolicitud from "./pages/NuevaSolicitud";
+import Candidatos from "./pages/Candidatos";
+import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
-import Solicitudes from "./pages/Solicitudes";
+import NuevaSolicitud from "./pages/NuevaSolicitud";
+import RellenarNuevoFormulario from "./pages/RellenarNuevoFormulario";
+import Resumen from "./pages/Resumen";
 import SolicitudDetalle from "./pages/SolicitudDetalle";
+import Solicitudes from "./pages/Solicitudes";
+import { useTheme } from "./themes/useTheme";
 
-function App() {
+function Contenido() {
   // El usuario vive en el componente padre y baja por props a quien lo necesita
   const [usuario, setUsuario] = useState(getSesion);
+  const { theme, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
+
+  // El formulario público se muestra limpio, sin la barra del sistema interno
+  const esFormularioPublico = pathname.toLowerCase() === "/rellenarnuevoformulario";
 
   const handleIngresar = (elegido) => {
     iniciarSesion(elegido);
@@ -31,11 +38,13 @@ function App() {
   );
 
   return (
-    <BrowserRouter>
-      {/* Esto hace que la navbar se mantenga visible en todas las paginas/pantallas */}
-      <Navbar usuario={usuario} onSalir={handleSalir} />
-      <main className="pb-5">
+    <>
+      {!esFormularioPublico && (
+        <Navbar usuario={usuario} onSalir={handleSalir} tema={theme} onCambiarTema={toggleTheme} />
+      )}
+      <main className={esFormularioPublico ? undefined : "pb-5"}>
         <Routes>
+          <Route path="/rellenarNuevoFormulario" element={<RellenarNuevoFormulario tema={theme} />} />
           <Route path="/login" element={<Login usuario={usuario} onIngresar={handleIngresar} />} />
           <Route path="/" element={protegida(<Dashboard usuario={usuario} />)} />
           <Route path="/candidatos" element={protegida(<Candidatos usuario={usuario} />)} />
@@ -48,6 +57,14 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Contenido />
     </BrowserRouter>
   );
 }

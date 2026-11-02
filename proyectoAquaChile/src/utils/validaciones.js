@@ -28,7 +28,7 @@ export const validarCandidato =(datos, candidatos = [], idActual = null) => {
     errores.correo = "Ingresa el correo electrónico.";
   } else if (!/^\S+@\S+\.\S+$/.test(correo)) {
     errores.correo = "Ingresa un correo válido, por ejemplo nombre@ejemplo.cl.";
-  } else if (candidatos.some((c) => c.id !== idActual && c.correo.toLowerCase() === correo)) {
+  } else if (candidatos.some((c) => c.id !== idActual && c.correo?.toLowerCase() === correo)) {
     errores.correo = "Ya existe un candidato registrado con este correo.";
   }
 
@@ -63,7 +63,7 @@ export const validarSolicitud = (datos) => {
 
 export const validarEvaluacion = (datos, fechaSolicitud) => {
   const errores = {};
-  const finalizada = datos.estado === "Finalizada";
+  const esCierre = datos.estado === "Finalizada" || datos.estado === "Rechazada";
 
   if (vacio(datos.estado)) errores.estado = "Selecciona el estado de la evaluación.";
 
@@ -71,11 +71,11 @@ export const validarEvaluacion = (datos, fechaSolicitud) => {
     errores.fechaEvaluacion = "Ingresa la fecha de evaluación.";
   } else if (fechaSolicitud && datos.fechaEvaluacion < fechaSolicitud) {
     errores.fechaEvaluacion = "La fecha de evaluación no puede ser anterior a la solicitud.";
-  } else if (finalizada && datos.fechaEvaluacion > hoyISO()) {
-    errores.fechaEvaluacion = "Una evaluación finalizada no puede tener fecha futura.";
+  } else if (esCierre && datos.fechaEvaluacion > hoyISO()) {
+    errores.fechaEvaluacion = "Una evaluación cerrada no puede tener fecha futura.";
   }
 
-  if (finalizada && vacio(datos.observaciones)) {
+  if (esCierre && vacio(datos.observaciones)) {
     errores.observaciones = "Ingresa el resultado u observaciones para finalizar.";
   }
 

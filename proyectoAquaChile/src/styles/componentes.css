@@ -1,0 +1,167 @@
+/* ==========================================================================
+   Sistema de diseño AquaChile: componentes
+   Adapta Bootstrap a los tokens. Contenido:
+   1. Botones  2. Tarjetas y ventanas  3. Formularios  4. Tablas
+   5. Estados y etiquetas  6. Indicadores  7. Barra de navegación  8. Páginas
+   ========================================================================== */
+
+/* 1. Botones: primary = acción principal, outline-secondary = acción secundaria,
+      outline-danger = acción destructiva. No se usan otras variantes. */
+.btn-primary {
+  --bs-btn-bg: var(--aqua-acento);
+  --bs-btn-border-color: var(--aqua-acento);
+  --bs-btn-color: var(--aqua-sobre-acento);
+  --bs-btn-hover-bg: var(--aqua-acento-hover);
+  --bs-btn-hover-border-color: var(--aqua-acento-hover);
+  --bs-btn-hover-color: var(--aqua-sobre-acento);
+  --bs-btn-active-bg: var(--aqua-acento-hover);
+  --bs-btn-active-border-color: var(--aqua-acento-hover);
+  --bs-btn-active-color: var(--aqua-sobre-acento);
+  --bs-btn-disabled-bg: var(--aqua-acento);
+  --bs-btn-disabled-border-color: var(--aqua-acento);
+  --bs-btn-disabled-color: var(--aqua-sobre-acento);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--aqua-texto);
+  --bs-btn-border-color: var(--aqua-texto-suave);
+  --bs-btn-hover-bg: var(--aqua-superficie-suave);
+  --bs-btn-hover-border-color: var(--aqua-texto-suave);
+  --bs-btn-hover-color: var(--aqua-texto);
+  --bs-btn-active-bg: var(--aqua-superficie-suave);
+  --bs-btn-active-border-color: var(--aqua-texto-suave);
+  --bs-btn-active-color: var(--aqua-texto);
+  --bs-btn-disabled-color: var(--aqua-texto-suave);
+  --bs-btn-disabled-border-color: var(--aqua-borde);
+}
+
+.btn:focus-visible {
+  box-shadow: var(--aqua-anillo-foco);
+}
+
+/* 2. Tarjetas y ventanas */
+.card {
+  --bs-card-bg: var(--aqua-superficie);
+  --bs-card-border-color: var(--aqua-borde);
+  --bs-card-border-radius: var(--aqua-radio);
+  box-shadow: var(--aqua-sombra);
+}
+
+.modal-content {
+  --bs-modal-bg: var(--aqua-superficie);
+  --bs-modal-color: var(--aqua-texto);
+  --bs-modal-border-color: var(--aqua-borde);
+  --bs-modal-header-border-color: var(--aqua-borde);
+}
+
+/* 3. Formularios */
+.form-control,
+.form-select {
+  background-color: var(--aqua-superficie);
+  color: var(--aqua-texto);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--aqua-superficie);
+  color: var(--aqua-texto);
+  border-color: var(--aqua-acento);
+  box-shadow: var(--aqua-anillo-foco);
+}
+
+.form-check-input:checked {
+  background-color: var(--aqua-acento);
+  border-color: var(--aqua-acento);
+}
+
+/* 4. Tablas */
+.tabla-aqua {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--aqua-texto);
+  --bs-table-hover-color: var(--aqua-texto);
+  --bs-table-hover-bg: var(--aqua-superficie-suave);
+  --bs-table-border-color: var(--aqua-borde);
+  margin-bottom: 0;
+}
+
+.tabla-aqua thead th {
+  background-color: var(--aqua-superficie-suave);
+  color: var(--aqua-texto);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.tabla-aqua td,
+.tabla-aqua th {
+  padding: 0.75rem;
+}
+
+/* Texto largo: conserva un ancho legible; en pantallas chicas la tabla se desplaza */
+.tabla-aqua .celda-texto {
+  min-width: 16rem;
+}
+
+/* 5. Estados y etiquetas */
+.estado {
+  display: inline-block;
+  padding: 0.25em 0.65em;
+  border-radius: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estado-pendiente { background-color: var(--aqua-pendiente-fondo); color: var(--aqua-pendiente-texto); }
+.estado-proceso { background-color: var(--aqua-proceso-fondo); color: var(--aqua-proceso-texto); }
+.estado-finalizada { background-color: var(--aqua-finalizada-fondo); color: var(--aqua-finalizada-texto); }
+.estado-rechazada { background-color: var(--aqua-rechazada-fondo); color: var(--aqua-rechazada-texto); }
+
+.etiqueta {
+  display: inline-block;
+  padding: 0.15em 0.55em;
+  border: 1px solid var(--aqua-borde);
+  border-radius: var(--aqua-radio-pequeno);
+  background-color: var(--aqua-superficie-suave);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+/* 6. Indicadores del dashboard: cada tono usa los colores del estado que mide */
+.indicador .card-title { font-size: 1rem; font-weight: 600; }
+.indicador .indicador-valor { font-size: 2.75rem; font-weight: 700; line-height: 1.1; margin-bottom: 0.25rem; }
+.indicador .btn { --bs-btn-color: inherit; --bs-btn-border-color: currentColor; --bs-btn-hover-color: inherit; --bs-btn-hover-border-color: currentColor; --bs-btn-hover-bg: rgba(128, 128, 128, 0.2); }
+
+.indicador-neutro { --bs-card-bg: var(--aqua-superficie); --bs-card-color: var(--aqua-texto); color: var(--aqua-texto); }
+.indicador-pendiente { --bs-card-bg: var(--aqua-pendiente-fondo); color: var(--aqua-pendiente-texto); }
+.indicador-proceso { --bs-card-bg: var(--aqua-proceso-fondo); color: var(--aqua-proceso-texto); }
+.indicador-finalizada { --bs-card-bg: var(--aqua-finalizada-fondo); color: var(--aqua-finalizada-texto); }
+.indicador-rechazada { --bs-card-bg: var(--aqua-rechazada-fondo); color: var(--aqua-rechazada-texto); }
+
+/* 7. Barra de navegación */
+.barra-aqua {
+  background-color: var(--aqua-barra);
+  box-shadow: var(--aqua-sombra);
+  --bs-navbar-color: var(--aqua-texto);
+  --bs-navbar-hover-color: var(--aqua-texto);
+  --bs-navbar-active-color: var(--aqua-texto);
+  --bs-navbar-brand-color: var(--aqua-texto);
+}
+
+.barra-aqua .nav-link.active { font-weight: 600; text-decoration: underline; text-underline-offset: 0.3em; }
+.barra-aqua .navbar-text { color: var(--aqua-texto); }
+.barra-aqua .logo { height: 48px; }
+
+/* 8. Páginas */
+.panel-bienvenida {
+  padding: 1.5rem;
+  border: 1px solid var(--aqua-borde);
+  border-radius: var(--aqua-radio);
+  background-color: var(--aqua-superficie);
+  box-shadow: var(--aqua-sombra);
+}
+
+.dato-etiqueta { font-size: 0.875rem; color: var(--aqua-texto-suave); }
+
+.pagina-publica { min-height: 100vh; padding-block: 2.5rem; }
+.pagina-publica .contenido { max-width: 720px; }
+.pagina-publica .logo { height: 64px; }

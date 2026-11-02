@@ -1,137 +1,131 @@
-import { useState } from "react";
-import { Modal } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import BadgeEstado from "../components/atoms/BadgeEstado";
-import FormularioEvaluacion from "../components/organisms/FormularioEvaluacion";
-import { getSolicitudes, saveSolicitudes } from "../data/mockData";
-import { puedeEvaluar, solicitudesVisibles } from "../utils/permisos";
+import { useState } from 'react';
+import { Alert, Button, ButtonGroup, Card, Modal, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import BadgeEstado from '../components/atoms/BadgeEstado';
+import EstadoCarga from '../components/molecules/EstadoCarga';
+import FormularioEvaluacion from '../components/organisms/FormularioEvaluacion';
+import PlantillaPagina from '../components/templates/PlantillaPagina';
+import { useCarga } from '../hooks/useCarga';
+import { evaluarSolicitud, obtenerSolicitudes } from '../services/api';
+import { puedeEvaluar, solicitudesVisibles } from '../utils/permisos';
+
+const FILTROS = [
+  { valor: 'TODAS', texto: 'Todas' },
+  { valor: 'En proceso', texto: 'En proceso' },
+  { valor: 'Finalizada', texto: 'Finalizadas' },
+  { valor: 'Rechazada', texto: 'Rechazadas' },
+];
 
 function Resumen({ usuario }) {
-  const [solicitudes, setSolicitudes] = useState(getSolicitudes);
+  const { datos, cargando, error, recargar } = useCarga(obtenerSolicitudes);
+  const [filtro, setFiltro] = useState('TODAS');
   const [selected, setSelected] = useState(null); // Solicitud en edición
+  const [enviando, setEnviando] = useState(false);
+  const [errorGuardar, setErrorGuardar] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
-  const visibles = solicitudesVisibles(usuario, solicitudes);
-  const enProceso = visibles.filter((s) => s.estado === "En proceso");
-  const finalizadas = visibles.filter((s) => s.estado === "Finalizada");
+  // Las pendientes aún no se evalúan: se gestionan desde Candidatos y Solicitudes
+  const evaluaciones = solicitudesVisibles(usuario, datos ?? []).filter((s) => s.estado !== 'Pendiente');
+  const contar = (valor) => (valor === 'TODAS' ? evaluaciones.length : evaluaciones.filter((s) => s.estado === valor).length);
+  const filtradas = evaluaciones.filter((s) => filtro === 'TODAS' || s.estado === filtro);
 
-  const handleGuardarEvaluacion = (datos) => {
-    const updated = solicitudes.map((item) => {
-      if (item.id === selected.id) {
-        return { ...item, ...datos };
-      }
-      return item;
-    });
-    saveSolicitudes(updated);
-    setSolicitudes(updated);
-    setSelected(null);
+  const abrir = (solicitud) => {
+    setErrorGuardar('');
+    setSelected(solicitud);
+  };
+
+  const handleGuardarEvaluacion = async (datosEvaluacion) => {
+    setEnviando(true);
+    setErrorGuardar('');
+    try {
+      await evaluarSolicitud(selected.id, datosEvaluacion);
+      setMensaje(`Evaluación de ${selected.nombreCandidato} guardada como ${datosEvaluacion.estado}.`);
+      setSelected(null);
+      await recargar();
+    } catch (err) {
+      setErrorGuardar(err.message);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Resumen de Evaluaciones</h2>
+    <PlantillaPagina
+      titulo="Resumen de evaluaciones"
+      descripcion="Revisión, calificación y registro de resoluciones."
+      acciones={
+        <ButtonGroup aria-label="Filtrar evaluaciones">
+          {FILTROS.map((f) => (
+            <Button key={f.valor} variant={filtro === f.valor ? 'primary' : 'outline-secondary'} onClick={() => setFiltro(f.valor)}>
+              {f.texto} ({contar(f.valor)})
+            </Button>
+          ))}
+        </ButtonGroup>
+      }
+    >
+      {mensaje && <Alert variant="success" dismissible onClose={() => setMensaje('')}>{mensaje}</Alert>}
 
-      {/* SECCIÓN 1: EN PROCESO */}
-      <div className="card mb-5 border-info">
-        <div className="card-header bg-info text-white fw-bold">
-          Solicitudes En Proceso ({enProceso.length})
-        </div>
-        <div className="card-body">
-          {enProceso.length === 0 ? (
-            <p className="text-muted mb-0">No hay evaluaciones en proceso.</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="table align-middle">
-                <thead>
-                  <tr>
-                    <th>Candidato</th>
-                    <th>Cargo</th>
-                    <th>Evaluador</th>
-                    <th>Observaciones Actuales</th>
-                    <th>Acción</th>
+      <EstadoCarga cargando={cargando} error={error} hayDatos={Boolean(datos)} onReintentar={recargar}>
+        {filtradas.length === 0 ? (
+          <Alert variant="secondary">No hay evaluaciones con este filtro.</Alert>
+        ) : (
+          <Card>
+            <Table responsive hover className="tabla-aqua align-middle">
+              <thead>
+                <tr>
+                  <th>Candidato</th>
+                  <th>Cargo</th>
+                  <th>Responsable</th>
+                  <th>Fecha de evaluación</th>
+                  <th>Estado</th>
+                  <th>Observaciones</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtradas.map((sol) => (
+                  <tr key={sol.id}>
+                    <td className="fw-bold">{sol.nombreCandidato}</td>
+                    <td>{sol.cargo}</td>
+                    <td>{sol.evaluador}</td>
+                    <td>{sol.fechaEvaluacion || 'Sin registrar'}</td>
+                    <td><BadgeEstado estado={sol.estado} /></td>
+                    <td className="celda-texto">{sol.observaciones || <span className="text-body-secondary">Sin observaciones</span>}</td>
+                    <td>
+                      {puedeEvaluar(usuario, sol) ? (
+                        <Button variant={sol.estado === 'En proceso' ? 'primary' : 'outline-secondary'} size="sm" className="text-nowrap" onClick={() => abrir(sol)}>
+                          {sol.estado === 'En proceso' ? 'Registrar Evaluación' : 'Editar Evaluación'}
+                        </Button>
+                      ) : (
+                        <Link to={`/solicitudes/${sol.id}`} className="text-nowrap">Ver detalle</Link>
+                      )}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {enProceso.map((sol) => (
-                    <tr key={sol.id}>
-                      <td className="fw-bold">{sol.nombreCandidato}</td>
-                      <td>{sol.cargo}</td>
-                      <td>{sol.evaluador}</td>
-                      <td>{sol.observaciones || <span className="text-muted">Sin observaciones</span>}</td>
-                      <td>
-                        {puedeEvaluar(usuario, sol) ? (
-                          <button
-                            className="btn btn-outline-primary btn-sm"
-                            onClick={() => setSelected(sol)}
-                          >
-                            Registrar Evaluación
-                          </button>
-                        ) : (
-                          <Link to={`/solicitudes/${sol.id}`}>Ver detalle</Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </Table>
+          </Card>
+        )}
+      </EstadoCarga>
 
-      {/* SECCIÓN 2: FINALIZADAS / APROBADAS */}
-      <div className="card border-success">
-        <div className="card-header bg-success text-white fw-bold">
-          Solicitudes Finalizadas ({finalizadas.length})
-        </div>
-        <div className="card-body">
-          {finalizadas.length === 0 ? (
-            <p className="text-muted mb-0">No hay evaluaciones finalizadas aún.</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="table align-middle">
-                <thead>
-                  <tr>
-                    <th>Candidato</th>
-                    <th>Cargo</th>
-                    <th>Fecha Evaluación</th>
-                    <th>Resultado / Observaciones</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {finalizadas.map((sol) => (
-                    <tr key={sol.id}>
-                      <td className="fw-bold">{sol.nombreCandidato}</td>
-                      <td>{sol.cargo}</td>
-                      <td>{sol.fechaEvaluacion}</td>
-                      <td>{sol.observaciones}</td>
-                      <td><BadgeEstado estado={sol.estado} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* FORMULARIO DE EVALUACIÓN */}
-      <Modal show={Boolean(selected)} onHide={() => setSelected(null)}>
+      <Modal show={Boolean(selected)} onHide={() => setSelected(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Evaluación: {selected?.nombreCandidato}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {errorGuardar && <Alert variant="danger">{errorGuardar}</Alert>}
           {selected && (
             <FormularioEvaluacion
               key={selected.id}
               solicitud={selected}
+              enviando={enviando}
               onGuardar={handleGuardarEvaluacion}
               onCancelar={() => setSelected(null)}
             />
           )}
         </Modal.Body>
       </Modal>
-    </div>
+    </PlantillaPagina>
   );
 }
 

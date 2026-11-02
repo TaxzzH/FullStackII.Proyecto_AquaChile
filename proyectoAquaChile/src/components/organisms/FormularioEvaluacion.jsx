@@ -5,10 +5,11 @@ import { hoyISO, validarEvaluacion } from '../../utils/validaciones';
 
 const ESTADOS = [
   { valor: 'En proceso', texto: 'En proceso' },
-  { valor: 'Finalizada', texto: 'Finalizada' },
+  { valor: 'Finalizada', texto: 'Finalizada (Aprobada)' },
+  { valor: 'Rechazada', texto: 'Rechazada' },
 ];
 
-function FormularioEvaluacion({ solicitud, onGuardar, onCancelar }) {
+function FormularioEvaluacion({ solicitud, onGuardar, onCancelar, enviando = false }) {
   const [datos, setDatos] = useState({
     fechaEvaluacion: solicitud.fechaEvaluacion || hoyISO(),
     estado: solicitud.estado,
@@ -40,14 +41,14 @@ function FormularioEvaluacion({ solicitud, onGuardar, onCancelar }) {
         etiqueta="Resultado u observaciones"
         as="textarea"
         rows={4}
-        placeholder="Ingrese los detalles y conclusión de la evaluación..."
+        placeholder="Ingrese los detalles y conclusión de la evaluación (justificación técnica, psicolaboral o motivo de rechazo)..."
         value={datos.observaciones}
         error={errores.observaciones}
         onChange={handleChange}
       />
       <div className="d-flex justify-content-end gap-2">
-        <Button type="button" variant="secondary" onClick={onCancelar}>Cancelar</Button>
-        <Button type="submit" variant="success">Guardar evaluación</Button>
+        <Button type="button" variant="outline-secondary" onClick={onCancelar}>Cancelar</Button>
+        <Button type="submit" variant="primary" disabled={enviando}>{enviando ? 'Guardando...' : 'Guardar evaluación'}</Button>
       </div>
     </Form>
   );

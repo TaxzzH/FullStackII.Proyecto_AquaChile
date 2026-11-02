@@ -1,7 +1,7 @@
 import { Card, Col, Container, Row } from 'react-bootstrap';
 import { Navigate } from 'react-router-dom';
 import FormularioIngreso from '../components/organisms/FormularioIngreso';
-import { usuarios } from '../data/mockData';
+import { usuarios } from '../data/catalogos';
 
 function Login({ usuario, onIngresar }) {
   if (usuario) return <Navigate to="/" replace />;
@@ -10,7 +10,7 @@ function Login({ usuario, onIngresar }) {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col xs={12} sm={10} md={7} lg={5}>
-          <Card className="shadow-sm">
+          <Card>
             <Card.Body>
               <h1 className="h4 mb-2">Ingreso al sistema</h1>
               <p className="text-body-secondary">

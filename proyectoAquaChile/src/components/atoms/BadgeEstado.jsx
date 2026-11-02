@@ -1,14 +1,13 @@
-import { Badge } from 'react-bootstrap';
-
-const COLORES = { Pendiente: 'warning', 'En proceso': 'info', Finalizada: 'success' };
+const CLASES = {
+  Pendiente: 'estado-pendiente',
+  'En proceso': 'estado-proceso',
+  Finalizada: 'estado-finalizada',
+  Rechazada: 'estado-rechazada',
+};
 
 // Muestra el estado de una solicitud con el color que le corresponde
 function BadgeEstado({ estado }) {
-  return (
-    <Badge bg={COLORES[estado] ?? 'secondary'} text={estado === 'Finalizada' ? undefined : 'dark'}>
-      {estado}
-    </Badge>
-  );
+  return <span className={`estado ${CLASES[estado] ?? ''}`}>{estado}</span>;
 }
 
 export default BadgeEstado;
