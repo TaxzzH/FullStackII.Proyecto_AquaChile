@@ -5,12 +5,26 @@ import EstadoCarga from "../components/molecules/EstadoCarga";
 import TarjetaIndicador from "../components/molecules/TarjetaIndicador";
 import { useCarga } from "../hooks/useCarga";
 import { obtenerCandidatos, obtenerEstadisticas, obtenerSolicitudes, resetearDatosBD } from "../services/api";
+import { enviarPostulacion } from "../services/resendService";
 import { descargarJSON, estructurarDatos } from "../utils/exportar";
 import { puede } from "../utils/permisos";
 
 function Dashboard({ usuario }) {
   const { datos: stats, cargando, error, recargar } = useCarga(obtenerEstadisticas);
   const [aviso, setAviso] = useState(null);
+  const [enviandoCorreo, setEnviandoCorreo] = useState(false);
+
+  // Envía el correo de prueba con Resend y muestra el resultado en el aviso
+  const handleEnviarCorreo = async () => {
+    setEnviandoCorreo(true);
+    const { data, error } = await enviarPostulacion();
+    setEnviandoCorreo(false);
+    if (error) {
+      setAviso({ tipo: "danger", texto: `No se pudo enviar el correo: ${error.message}` });
+    } else {
+      setAviso({ tipo: "success", texto: `Correo enviado con Resend (id ${data.id}).` });
+    }
+  };
 
   const handleReset = async () => {
     if (!window.confirm("¿Seguro que quieres reiniciar los datos de prueba? Se perderán los registros creados.")) return;
@@ -70,6 +84,9 @@ function Dashboard({ usuario }) {
       <div className="d-flex flex-wrap gap-2 mt-4">
         <Button as={Link} to="/rellenarNuevoFormulario" target="_blank" rel="noopener noreferrer" variant="outline-secondary" size="sm">
           Abrir formulario público
+        </Button>
+        <Button variant="outline-secondary" size="sm" onClick={handleEnviarCorreo} disabled={enviandoCorreo}>
+          {enviandoCorreo ? "Enviando correo..." : "Enviar correo de prueba"}
         </Button>
         {puede(usuario, "reiniciarDatos") && (
           <>
